@@ -11,7 +11,7 @@ class JobGraph:
 
     def validate(self) -> None:
         self.job_exists()
-        self.check_cycles()
+        self.topological_order()
 
     def job_exists(self) -> None:
         for job in self.jobs.values():
@@ -20,30 +20,25 @@ class JobGraph:
                     raise ValueError("Depending job doesnt exist")
         
 
-    def check_cycles(self) -> None:
+    def topological_order(self) -> list[str]:
+        self.job_exists()
         indegree = {name: len(job.depends_on) for name, job in self.jobs.items()}
         adj = defaultdict(list)
         for job in self.jobs.values():
             for dep in job.depends_on:
                 adj[dep].append(job.name)
 
-        q = deque()
-        for job in self.jobs.values():
-            if len(job.depends_on) == 0:
-                q.append(job.name)
-
-        done = 0
+        q = deque(name for name, deg in indegree.items() if deg == 0)
+        order = []
 
         while q:
             node = q.popleft()
-            done+=1
-
+            order.append(node)
             for nei in adj[node]:
-                indegree[nei] -=1
+                indegree[nei] -= 1
                 if indegree[nei] == 0:
                     q.append(nei)
 
-        if done != len(self.jobs):
+        if len(order) != len(self.jobs):
             raise ValueError("Cycle in graph")
-
-
+        return order
