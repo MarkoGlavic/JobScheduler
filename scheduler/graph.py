@@ -7,6 +7,8 @@ class JobGraph:
         self.jobs: dict[str, Job] = {}
 
     def add_job(self, job: Job) -> None:
+        if job.name in self.jobs:
+            raise ValueError("Job with name already exists")
         self.jobs[job.name] = job
 
     def validate(self) -> None:

@@ -9,6 +9,15 @@ def test_cycle():
     with pytest.raises(ValueError, match = "Cycle in graph"):
         g.validate()
 
+def test_duplicate():
+    g = JobGraph()
+    g.add_job(Job("a", 5, 1, depends_on=["b"]))
+    with pytest.raises(ValueError, match ="Job with name already exists"):
+        g.add_job(Job("a", 5, 1, depends_on=["b"]))
+
+
+
+
 def test_missing_dependency():
     g = JobGraph()
     g.add_job(Job("a", 5, 1, depends_on=["fsdaiohfdaoiu"]))
